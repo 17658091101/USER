@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "tpad.h": "c",
+        "timer.h": "c",
+        "led.h": "c",
+        "sds.h": "c",
+        "ov7670.h": "c",
+        "atomic": "cpp",
+        "*.tcc": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp"
+    },
+    "cSpell.words": [
+        "foffset"
+    ]
+}
