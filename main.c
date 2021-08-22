@@ -1,10 +1,15 @@
 /*
- * @Author: ZX
+ * @Author: Z X
  * @Date: 2021-08-09 00:56:20
- * @LastEditTime: 2021-08-18 14:56:43
- * @LastEditors: Please set LastEditors
- * @Description: Anti-theft oil Project
+ * @LastEditTime: 2021-08-22 14:57:31
+ * @LastEditors: Z X
+ * @Description: 防盗油系统程序终版！！！
+ * 				按键切换拍照/相册模式；
+ * 				拍照模式，即可双击屏幕拍照，又可感应报警拍照
+ * 				相册模式，点击屏幕两侧切换图片，双击屏幕中间删除当前图片；
+ * 				报警响应后，只能人为按键关闭（后又添加报警半分钟后自动关闭）
  * @FilePath: \USER\main.c
+ * BUG保佑！！！
  */
 #include "led.h"
 #include "delay.h"
@@ -38,12 +43,14 @@ u16 color_g;
 u16 color_b;
 
 /**
+ * @funcname: Init_All();
  * @description: 初始化函数
  * @param {*}
- * @return {*}
+ * @return Init_ok 1初始化正常	0初始化错误
  */
-void Init_All()
+u8 Init_All()
 {
+	u8 Init_ok=1;
 	delay_init();	    	 //延时函数初始化	  
 	NVIC_Configuration(); 	 //设置NVIC中断分组2:2位抢占优先级，2位响应优先级
 	uart_init(115200);	 	//串口初始化为115200
@@ -64,13 +71,19 @@ void Init_All()
  	POINT_COLOR=RED;//设置字体为红色
 	while(font_init()) 				//检查字库
 	{
+		Init_ok=0;
 		LCD_ShowString(30,50,200,16,16,"Font Error!");
 		delay_ms(200);
-		LCD_Fill(30,50,240,66,WHITE);//清除显示	     
+		LCD_Fill(30,50,240,66,WHITE);//清除显示
 	}
+	return Init_ok;
 }
-
-//设置CPU的频率
+/**
+ * @funcname: ov7670_clock_set();
+ * @description: 设置CPU的频率
+ * @param {u8 PLL}	频率
+ * @return {*}
+ */
 void ov7670_clock_set(u8 PLL) 
 { 
 	u8 temp=0;
@@ -88,9 +101,14 @@ void ov7670_clock_set(u8 PLL)
 	{    
 		temp=RCC->CFGR>>2; 
 		temp&=0x03; 
-	}   
+	}
 }
-//图片浏览触摸屏检测
+/**
+ * @funcname: pic_tp_scan();
+ * @description: 图片浏览触摸屏检测
+ * @param {*}
+ * @return res 1按在左面	2按在中间	3按在右面
+ */
 u8 pic_tp_scan(void)
 {
 	u8 res=0;
@@ -109,7 +127,12 @@ u8 pic_tp_scan(void)
 	} 
 	return res;
 }
-//更新LCD显示
+/**
+ * @funcname: camera_refresh();
+ * @description: 更新LCD显示
+ * @param {*}
+ * @return {*}
+ */
 void camera_refresh()
 {
 	u32 i,j;
@@ -177,8 +200,13 @@ void camera_refresh()
 	} 
 }	
 
-//文件名自增（避免覆盖）
-//组合成:形如"0:PICTURE/PIC13141.bmp"的文件名
+/**
+ * @funcname: camera_new_pathname(u8 *pname);
+ * @description: 文件名自增（避免覆盖）
+ * 				 组合成:形如"0:PICTURE/PIC13141.bmp"的文件名
+ * @param {u8 *pname}
+ * @return {*}
+ */
 void camera_new_pathname(u8 *pname)
 {
 	u8 res;
@@ -193,9 +221,10 @@ void camera_new_pathname(u8 *pname)
 }
 
 /**
+ * @funcname: pic_get_tnum(u8 *path);
  * @description: 得到path路径下,目标文件的总个数
- * @param {u8} *path 路径
- * @return {u16} rval 总有效文件数
+ * @param {u8 *path}	路径
+ * @return {u16 rval}	总有效文件数
  */
 u16 pic_get_tnum(u8 *path)
 {	  
@@ -225,9 +254,10 @@ u16 pic_get_tnum(u8 *path)
 }
 
 /**
+ * @funcname: camera_shoot(u8 sd_ok,u8 *pname);
  * @description: 拍照函数
- * @param {u8} sd_ok
- * @param {u8} *pname
+ * @param {u8 sd_ok}
+ * 		  {u8 *pname}
  * @return {*}
  */
 void camera_shoot(u8 sd_ok,u8 *pname)	
@@ -255,6 +285,7 @@ void camera_shoot(u8 sd_ok,u8 *pname)
 }
 
 /**
+ * @funcname: picviewer_play();
  * @description: 数码相框
  * @param {*}
  * @return {*}
@@ -367,7 +398,8 @@ u8 picviewer_play(void)
 }
 
 /**
- * @description: 摄像头
+ * @funcname: camera_play();
+ * @description: 摄像头显示
  * @param {*}
  * @return {*}
  */
@@ -477,9 +509,16 @@ u8 camera_play(void)
 	return 0;
 }
 
+/**
+ * @funcname:  main(void);
+ * @description: 主函数
+ * @param {*}
+ * @return {*}
+ */
 int main(void)
 {
-	Init_All();		//初始化函数
+	while (!Init_All())			//初始化错误
+		LCD_ShowString(60,50,200,24,24,"Init_All error!");			
 	
 	LCD_ShowString(60,50,200,16,16,"WarShip STM32");
 	LCD_ShowString(30,70,200,16,16,"Anti-theft oil Project");
