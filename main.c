@@ -1,7 +1,7 @@
 /*
  * @Author: Z X
  * @Date: 2021-08-09 00:56:20
- * @LastEditTime: 2021-08-22 14:57:31
+ * @LastEditTime: 2021-08-22 14:58:53
  * @LastEditors: Z X
  * @Description: 防盗油系统程序终版！！！
  * 				按键切换拍照/相册模式；
@@ -78,6 +78,7 @@ u8 Init_All()
 	}
 	return Init_ok;
 }
+
 /**
  * @funcname: ov7670_clock_set();
  * @description: 设置CPU的频率
@@ -103,6 +104,7 @@ void ov7670_clock_set(u8 PLL)
 		temp&=0x03; 
 	}
 }
+
 /**
  * @funcname: pic_tp_scan();
  * @description: 图片浏览触摸屏检测
@@ -127,6 +129,7 @@ u8 pic_tp_scan(void)
 	} 
 	return res;
 }
+
 /**
  * @funcname: camera_refresh();
  * @description: 更新LCD显示
