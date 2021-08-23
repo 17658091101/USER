@@ -1,7 +1,7 @@
 /*
  * @Author: Z X
  * @Date: 2021-08-09 00:56:20
- * @LastEditTime: 2021-08-22 14:59:55
+ * @LastEditTime: 2021-08-23 10:14:32
  * @LastEditors: Z X
  * @Description: 防盗油系统程序终版！！！
  * 				按键切换拍照/相册模式；
@@ -493,11 +493,23 @@ u8 camera_play(void)
 			while(1)
 			{
 				camera_refresh();//更新显示
-				BEEP=1;	//蜂鸣器短叫
-				REG=!REG;
-				delay_ms(200);
+				TIM3_Int_Init(999,7199);//10Khz的计数频率，计数到1000为100ms
 				KEY_0=KEY_Scan(0);
-				if(KEY_0==KEY_RIGHT)
+				if((int)(Intervals_ms*1000)%200==0)
+				{
+					BEEP=1;	//蜂鸣器短叫
+					REG=!REG;
+				}
+				if (Intervals_s==30)
+				{
+					TIM_Cmd(TIM3, DISABLE);  //失能（函数外使能）
+					Intervals_s=0;
+					BEEP=0;//关闭蜂鸣器
+					REG=0;//关闭灯光
+					key=0;
+					break;
+				}
+				else if(KEY_0==KEY_RIGHT)
 				{
 					BEEP=0;//关闭蜂鸣器
 					REG=0;//关闭灯光
