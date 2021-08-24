@@ -1,7 +1,7 @@
 /*
  * @Author: Z X
  * @Date: 2021-08-09 00:56:20
- * @LastEditTime: 2021-08-23 16:18:13
+ * @LastEditTime: 2021-08-24 14:36:50
  * @LastEditors: Z X
  * @Description: 防盗油系统程序终版！！！
  * 				按键切换拍照/相册模式；
@@ -277,7 +277,6 @@ u8 picviewer_play(void)
 	u8 *pname_p;		//带路径的文件名(显示用)
 	u16 totpicnum; 		//图片文件总数
 	u16 curindex;		//图片当前索引
-	u8 pause=0;			//暂停标记
 	u16 temp;
 	u16 *picindextbl;	//图片索引表
 	u8 KEY_0;
