@@ -1,7 +1,7 @@
 /*
  * @Author: Z X
  * @Date: 2021-08-09 00:56:20
- * @LastEditTime: 2021-08-23 10:14:32
+ * @LastEditTime: 2021-08-23 16:18:13
  * @LastEditors: Z X
  * @Description: 防盗油系统程序终版！！！
  * 				按键切换拍照/相册模式；
@@ -9,7 +9,7 @@
  * 				相册模式，点击屏幕两侧切换图片，双击屏幕中间删除当前图片；
  * 				报警响应后，只能人为按键关闭（后又添加报警半分钟后自动关闭）
  * @FilePath: \USER\main.c
- * BUG保佑！！！
+ * BUG保佑（反向毒奶）！！！
  */
 #include "led.h"
 #include "delay.h"
@@ -103,31 +103,6 @@ void ov7670_clock_set(u8 PLL)
 		temp=RCC->CFGR>>2; 
 		temp&=0x03; 
 	}
-}
-
-/**
- * @funcname: pic_tp_scan();
- * @description: 图片浏览触摸屏检测
- * @param {*}
- * @return res 1按在左面	2按在中间	3按在右面
- */
-u8 pic_tp_scan(void)
-{
-	u8 res=0;
-	tp_dev.scan(0);
-	if(tp_dev.sta&TP_PRES_DOWN)//有按键按下
-	{ 
-		if(tp_dev.x[0]<lcddev.width/3)res=1;			//按了左面
-		else if(tp_dev.x[0]<lcddev.width*2/3)res=2;	//按了中间
-		else if(tp_dev.x[0]<lcddev.width)res=3;		//按了右面 
-	}
-	while(res)//等待按键松开
-	{
-		tp_dev.scan(0);  
-		if((tp_dev.sta&TP_PRES_DOWN)==0)break;
-		delay_ms(5);
-	} 
-	return res;
 }
 
 /**
@@ -311,7 +286,7 @@ u8 picviewer_play(void)
 	{
 		Show_Str(30,170,240,16,"PICTURE文件夹错误!",16,0);
 		delay_ms(200);
-		LCD_Fill(30,170,240,186,WHITE);//清除显示	     
+		LCD_Fill(30,170,240,186,WHITE);//清除显示
 		delay_ms(200);
 	}
 	totpicnum=pic_get_tnum("0:/PICTURE"); //得到总有效文件数
@@ -352,8 +327,6 @@ u8 picviewer_play(void)
 			}
 		}
 	}
-	// Show_Str(30,170,240,16,"开始显示...",16,0); 
-	// delay_ms(1500);
 	piclib_init();					//初始化画图
 	curindex=0;						//从0开始显示
 	res_p=f_opendir(&picdir,(const TCHAR*)"0:/PICTURE");//打开目录
@@ -383,10 +356,10 @@ u8 picviewer_play(void)
 				if(curindex>=totpicnum)curindex=0;//到末尾的时候,自动从头开始
 				break;
 			}
-			else if(KEY_0==KEY_UP)
+			else if(KEY_0==2)
 			{
-				pause=!pause;
-				LED1=!pause; 	//暂停的时候LED1亮.  
+				//删除当前图片（还没写）
+				delay_ms(200);
 			}
 			if(camera_flag)
 				return 1;
@@ -422,11 +395,7 @@ u8 camera_play(void)
 		Show_Str(30,170,240,16,"camera can't use!",16,0);
 		sd_ok=0;
 	}else
-	{
-		// Show_Str(30,150,240,16,"SD normal!",16,0);
-		// delay_ms(200);
 		sd_ok=1;
-	}
 	pname=mymalloc(SRAMIN,30);	//为带路径的文件名分配30个字节的内存
 	while(pname==NULL)		//内存分配出错
 	{
