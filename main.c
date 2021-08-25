@@ -1,7 +1,7 @@
 /*
  * @Author: Z X
  * @Date: 2021-08-09 00:56:20
- * @LastEditTime: 2021-08-24 14:36:50
+ * @LastEditTime: 2021-08-25 10:47:46
  * @LastEditors: Z X
  * @Description: 防盗油系统程序终版！！！
  * 				按键切换拍照/相册模式；
@@ -357,7 +357,8 @@ u8 picviewer_play(void)
 			}
 			else if(KEY_0==2)
 			{
-				//删除当前图片（还没写）
+				//删除当前图片（不知道对不对）
+				f_unlink((const TCHAR*)pname_p);
 				delay_ms(200);
 			}
 			if(camera_flag)
