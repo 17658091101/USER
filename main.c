@@ -1,7 +1,7 @@
 /*
  * @Author: Z X
  * @Date: 2021-08-09 00:56:20
- * @LastEditTime: 2021-08-26 13:10:02
+ * @LastEditTime: 2021-08-26 15:44:30
  * @LastEditors: Z X
  * @Description: 防盗油系统程序终版！！！
  * 				按键切换拍照/相册模式；
@@ -225,8 +225,8 @@ u16 pic_get_tnum(u8 *path)
 			if((res&0XF0)==0X50)//取高四位,看看是不是图片文件	
 			{
 				rval++;//有效文件数增加1
-			}	    
-		}  
+			}
+		}
 	} 
 	return rval;
 }
