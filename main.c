@@ -1,7 +1,7 @@
 /*
  * @Author: Z X
  * @Date: 2021-08-09 00:56:20
- * @LastEditTime: 2021-08-26 15:44:30
+ * @LastEditTime: 2021-08-27 14:42:17
  * @LastEditors: Z X
  * @Description: 防盗油系统程序终版！！！
  * 				按键切换拍照/相册模式；
@@ -175,7 +175,7 @@ void camera_refresh()
 		ov_sta=0;					//开始下一次采集
  		ov_frame++; 
 	  LCD_Scan_Dir(DFT_SCAN_DIR);	//恢复默认扫描方向 
-	} 
+	}
 }	
 
 /**
@@ -210,7 +210,7 @@ u16 pic_get_tnum(u8 *path)
 	u16 rval=0;
  	DIR tdir;	 		//临时目录
 	FILINFO tfileinfo;	//临时文件信息	
-	u8 *fn;	 			 			   			     
+	u8 *fn;
     res=f_opendir(&tdir,(const TCHAR*)path); 	//打开目录
   	tfileinfo.lfsize=_MAX_LFN*2+1;				//长文件名最大长度
 	tfileinfo.lfname=mymalloc(SRAMIN,tfileinfo.lfsize);//为长文件缓存区分配内存
@@ -279,7 +279,7 @@ u8 picviewer_play(void)
 	u16 curindex;		//图片当前索引
 	u16 temp;
 	u16 *picindextbl;	//图片索引表
-	u8 KEY_0;
+	u8 K_Touch;			//
 	
 	while(f_opendir(&picdir,"0:/PICTURE"))//打开图片文件夹
 	{
@@ -342,20 +342,20 @@ u8 picviewer_play(void)
 		Show_Str(2,2,240,16,pname_p,16,1); 		//显示图片名字
 		while(1)
 		{
-			KEY_0=pic_tp_scan();		//扫描按键
-			if(KEY_0==1)		//上一张
+			K_Touch=pic_tp_scan();		//扫描按键
+			if(K_Touch==1)		//上一张
 			{
 				if(curindex)curindex--;
 				else curindex=totpicnum-1;
 				break;
 			}
-			if(KEY_0==3)//下一张
+			if(K_Touch==3)//下一张
 			{
 				curindex++;
 				if(curindex>=totpicnum)curindex=0;//到末尾的时候,自动从头开始
 				break;
 			}
-			else if(KEY_0==2)
+			else if(K_Touch==2)
 			{
 				//删除当前图片（不知道对不对）
 				f_unlink((const TCHAR*)pname_p);
@@ -382,10 +382,10 @@ u8 picviewer_play(void)
 u8 camera_play(void)
 {
 	u8 res;
-	u8 *pname;			//带路径的文件名 
-	u8 key=0;				//0，正常；1，感应到人体靠近；2，判断是否有人逗留，拍照取证；3，停止拍照，报警器开启
-	u8 KEY_0;  			//KEY1 拍照；KEY2 摄像头显示；WK_UP 图像显示
-	u8 sd_ok=1;			//0,sd卡不正常;1,SD卡正常.
+	u8 *pname;				//带路径的文件名 
+	u8 var=0;				//0，正常；1，感应到人体靠近；2，判断是否有人逗留，拍照取证；3，停止拍照，报警器开启
+	u8 switch_button;  		//KEY1 拍照；KEY2 摄像头显示；WK_UP 图像显示
+	u8 sd_ok=1;				//0,sd卡不正常;1,SD卡正常.
 
 	res=f_mkdir("0:/PICTURE");		//创建PICTURE文件夹
 	if(res!=FR_EXIST&&res!=FR_OK) 	//发生了错误
@@ -421,13 +421,13 @@ u8 camera_play(void)
 	config_ov7670_OutPut(20,60,320,240,0);
 	while(1)
 	{
-		KEY_0=KEY_Scan(0);
+		switch_button=KEY_Scan(0);
 		if(picture_flag)
 			break;
 		if(Intervals>=0.1)	//判断是否有人逗留（时间大于3秒）
 		{
 			Intervals=0;
-			key=2;
+			var=2;
 		}
 		else
 			Intervals=0;
@@ -437,10 +437,10 @@ u8 camera_play(void)
 			if(SR501&&RCWL_0516)
 			{
 				Show_Str(0,0,240,16,"People Runing!",16,0);
-				key=1;
+				var=1;
 			}
 		}
-		if(key==1)		//开始计时
+		if(var==1)		//开始计时
 		{
 			TIM3_Int_Init(999,7199);//10Khz的计数频率，计数到1000为100ms
 			if(D80NK_L==0||D80NK_R==0)	//经过光电管，结束计时
@@ -449,21 +449,21 @@ u8 camera_play(void)
 				REG=0;
 				Intervals=Intervals_ms+Intervals_s;	//最终时间
 				Intervals_s=0;
-				key=0;
+				var=0;
 			}
 		}
-		else if(key==2)	//有人停留，拍照取证
+		else if(var==2)	//有人停留，拍照取证
 		{
-			key=3;
+			var=3;
 			camera_shoot(sd_ok,pname);	//拍照保存至SD卡
 		}
-		else if(key==3)
+		else if(var==3)
 		{
 			while(1)
 			{
 				camera_refresh();//更新显示
 				TIM3_Int_Init(999,7199);//10Khz的计数频率，计数到1000为100ms
-				KEY_0=KEY_Scan(0);
+				switch_button=KEY_Scan(0);
 				if((int)(Intervals_ms*1000)%200==0)
 				{
 					BEEP=1;	//蜂鸣器短叫
@@ -475,14 +475,14 @@ u8 camera_play(void)
 					Intervals_s=0;
 					BEEP=0;//关闭蜂鸣器
 					REG=0;//关闭灯光
-					key=0;
+					var=0;
 					break;
 				}
-				else if(KEY_0==KEY_RIGHT)
+				else if(switch_button==KEY_RIGHT)
 				{
 					BEEP=0;//关闭蜂鸣器
 					REG=0;//关闭灯光
-					key=0;
+					var=0;
 					break;
 				}
 			}
