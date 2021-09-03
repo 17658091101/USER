@@ -1,11 +1,11 @@
 /*
  * @Author: Z X
  * @Date: 2021-08-09 00:56:20
- * @LastEditTime: 2021-08-27 14:42:17
+ * @LastEditTime: 2021-09-03 17:09:43
  * @LastEditors: Z X
  * @Description: 防盗油系统程序终版！！！
  * 				按键切换拍照/相册模式；
- * 				拍照模式，即可双击屏幕拍照，又可感应报警拍照
+ * 				拍照模式，即可双击屏幕拍照（暂无），又可感应报警拍照
  * 				相册模式，点击屏幕两侧切换图片，双击屏幕中间删除当前图片；
  * 				报警响应后，只能人为按键关闭（后又添加报警半分钟后自动关闭）
  * @FilePath: \USER\main.c
@@ -349,13 +349,13 @@ u8 picviewer_play(void)
 				else curindex=totpicnum-1;
 				break;
 			}
-			if(K_Touch==3)//下一张
+			if(K_Touch==2)//下一张
 			{
 				curindex++;
 				if(curindex>=totpicnum)curindex=0;//到末尾的时候,自动从头开始
 				break;
 			}
-			else if(K_Touch==2)
+			else if(K_Touch==3)
 			{
 				//删除当前图片（不知道对不对）
 				f_unlink((const TCHAR*)pname_p);
@@ -509,7 +509,7 @@ int main(void)
 	LCD_ShowString(65,90,200,16,16,"author@ZX");
 	LCD_ShowString(65,110,200,16,16,"2021/8/10");
 	//感应摄像
-A:	while (camera_flag) 
+A:	while (camera_flag)
 		camera_play();
 	//照片显示
 	while (picture_flag)
