@@ -1,15 +1,15 @@
 /*
  * @Author: Z X
  * @Date: 2021-08-09 00:56:20
- * @LastEditTime: 2021-09-03 17:09:43
+ * @LastEditTime: 2021-09-03 21:39:33
  * @LastEditors: Z X
  * @Description: 防盗油系统程序终版！！！
  * 				按键切换拍照/相册模式；
- * 				拍照模式，即可双击屏幕拍照（暂无），又可感应报警拍照
- * 				相册模式，点击屏幕两侧切换图片，双击屏幕中间删除当前图片；
+ * 				拍照模式，即可长按屏幕拍照（暂无），又可感应报警拍照
+ * 				相册模式，点击屏幕两侧切换图片，点击屏幕中间，确定删除当前图片；
  * 				报警响应后，只能人为按键关闭（后又添加报警半分钟后自动关闭）
  * @FilePath: \USER\main.c
- * BUG保佑（反向毒奶）！！！
+ * BUG #1保佑（反向毒奶）！！！
  */
 #include "led.h"
 #include "delay.h"
@@ -349,16 +349,18 @@ u8 picviewer_play(void)
 				else curindex=totpicnum-1;
 				break;
 			}
-			if(K_Touch==2)//下一张
+			if(K_Touch==3)//下一张
 			{
 				curindex++;
-				if(curindex>=totpicnum)curindex=0;//到末尾的时候,自动从头开始
+				if(curindex>=totpicnum)
+					curindex=0;//到末尾的时候,自动从头开始
 				break;
 			}
-			else if(K_Touch==3)
+			else if(K_Touch==2)
 			{
 				//删除当前图片（不知道对不对）
 				f_unlink((const TCHAR*)pname_p);
+				Show_Str(0,0,240,16,"Delete success!",16,0);
 				delay_ms(200);
 			}
 			if(camera_flag)
