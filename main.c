@@ -1,12 +1,12 @@
 /*
  * @Author: Z X
  * @Date: 2021-08-09 00:56:20
- * @LastEditTime: 2021-09-03 21:39:33
+ * @LastEditTime: 2021-09-05 16:23:52
  * @LastEditors: Z X
  * @Description: 防盗油系统程序终版！！！
  * 				按键切换拍照/相册模式；
- * 				拍照模式，即可长按屏幕拍照（暂无），又可感应报警拍照
- * 				相册模式，点击屏幕两侧切换图片，点击屏幕中间，确定删除当前图片；
+ * 				拍照模式，即可长按屏幕拍照，又可感应报警拍照
+ * 				相册模式，点击屏幕两侧切换图片，双击屏幕中间，确定删除当前图片；
  * 				报警响应后，只能人为按键关闭（后又添加报警半分钟后自动关闭）
  * @FilePath: \USER\main.c
  * BUG #1保佑（反向毒奶）！！！
@@ -281,7 +281,7 @@ u8 picviewer_play(void)
 	u16 *picindextbl;	//图片索引表
 	u8 K_Touch;			//
 	
-	while(f_opendir(&picdir,"0:/PICTURE"))//打开图片文件夹
+B:	while(f_opendir(&picdir,"0:/PICTURE"))//打开图片文件夹
 	{
 		Show_Str(30,170,240,16,"PICTURE文件夹错误!",16,0);
 		delay_ms(200);
@@ -361,7 +361,12 @@ u8 picviewer_play(void)
 				//删除当前图片（不知道对不对）
 				f_unlink((const TCHAR*)pname_p);
 				Show_Str(0,0,240,16,"Delete success!",16,0);
-				delay_ms(200);
+				delay_ms(100);
+				curindex++;
+				if(curindex>=totpicnum)
+					curindex=0;//到末尾的时候,自动从头开始
+				goto B;
+				// break;
 			}
 			if(camera_flag)
 				return 1;
@@ -387,6 +392,7 @@ u8 camera_play(void)
 	u8 *pname;				//带路径的文件名 
 	u8 var=0;				//0，正常；1，感应到人体靠近；2，判断是否有人逗留，拍照取证；3，停止拍照，报警器开启
 	u8 switch_button;  		//KEY1 拍照；KEY2 摄像头显示；WK_UP 图像显示
+	u8 photo_button;
 	u8 sd_ok=1;				//0,sd卡不正常;1,SD卡正常.
 
 	res=f_mkdir("0:/PICTURE");		//创建PICTURE文件夹
@@ -424,6 +430,7 @@ u8 camera_play(void)
 	while(1)
 	{
 		switch_button=KEY_Scan(0);
+		photo_button=pic_tp_scan();
 		if(picture_flag)
 			break;
 		if(Intervals>=0.1)	//判断是否有人逗留（时间大于3秒）
@@ -433,6 +440,8 @@ u8 camera_play(void)
 		}
 		else
 			Intervals=0;
+		if (photo_button==2)
+			camera_shoot(sd_ok,pname);	//拍照保存至SD卡
 		if(SR501&&RCWL_0516)	//感应到人体靠近
 		{
 			delay_ms(10);
